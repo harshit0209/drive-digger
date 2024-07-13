@@ -12,6 +12,7 @@ import (
 	"drive-digger/repository"
 
 	"github.com/cheggaaa/pb/v3"
+	"github.com/fatih/color"
 )
 
 func ScanDirectory(db *sql.DB, rootDir string) error {
@@ -33,7 +34,7 @@ func ScanDirectory(db *sql.DB, rootDir string) error {
 
 	err := filepath.Walk(rootDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			return err
+			color.Red("Failed to scan directory: %v", err)
 		}
 		if !info.IsDir() {
 			wg.Add(1)
