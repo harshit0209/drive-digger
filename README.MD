@@ -1,4 +1,4 @@
-drive digger
+drive digger : Scans all files, even the hidden  🤫  ones so that you can organize them xD
 
 ## Build for Win 
 ```
