@@ -22,13 +22,20 @@ type FileInfo struct {
 	MetaData     string
 }
 
+type FileOperation struct {
+	FromPath string
+	ToPath   string
+	Size     int64
+	Date     time.Time
+}
+
 func OpenDB() (*sql.DB, error) {
 	db, err := sql.Open("sqlite3", "./fileinfo.db")
 	if err != nil {
 		return nil, err
 	}
 
-	createTableSQL := `CREATE TABLE IF NOT EXISTS files (
+	createFileInfoTableSQL := `CREATE TABLE IF NOT EXISTS files (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		filename TEXT,
 		path TEXT,
@@ -41,7 +48,20 @@ func OpenDB() (*sql.DB, error) {
 		metadata TEXT
 	);`
 
-	_, err = db.Exec(createTableSQL)
+	createFileOperationsTableSQL := `CREATE TABLE IF NOT EXISTS file_operations (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		from_path TEXT,
+		to_path TEXT,
+		size INTEGER,
+		date TEXT
+	);`
+
+	_, err = db.Exec(createFileInfoTableSQL)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = db.Exec(createFileOperationsTableSQL)
 	if err != nil {
 		return nil, err
 	}
@@ -91,4 +111,10 @@ func ScanRowToFileInfo(rows *sql.Rows) (FileInfo, error) {
 	}
 
 	return fileInfo, nil
+}
+
+func InsertFileOperation(db *sql.DB, op FileOperation) error {
+	insertSQL := `INSERT INTO file_operations (from_path, to_path, size, date) VALUES (?, ?, ?, ?)`
+	_, err := db.Exec(insertSQL, op.FromPath, op.ToPath, op.Size, op.Date.Format(TimeFormat))
+	return err
 }
