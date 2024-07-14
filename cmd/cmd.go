@@ -98,6 +98,7 @@ func handleFilesAnalysis(db *sql.DB, reader *bufio.Reader) {
 		}
 	}
 }
+
 func handleFilesOperation(db *sql.DB, reader *bufio.Reader) {
 	for {
 		color.Cyan("Files Operation:\n1. Structured Copy Media Files\n2. Back to Main Menu")
@@ -107,12 +108,15 @@ func handleFilesOperation(db *sql.DB, reader *bufio.Reader) {
 
 		switch choice {
 		case "1":
+			fmt.Print("Enter output CSV file name: ")
+			outputFileName, _ := reader.ReadString('\n')
+			outputFileName = strings.TrimSpace(outputFileName)
 			color.Cyan("Copying media files from the database")
-			err := core.StructuredCopyMediaFiles(db)
+			err := core.StructuredCopyMediaFiles(db, outputFileName)
 			if err != nil {
 				color.Red("Failed to copy media files: %v", err)
 			} else {
-				color.Green("Media files copied successfully.")
+				color.Green("Media files copied and file operations exported to CSV file: %s", outputFileName)
 			}
 		case "2":
 			return
