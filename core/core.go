@@ -153,9 +153,6 @@ func StructuredCopyMediaFiles(db *sql.DB, outputFileName string) error {
 					Date:     time.Now(),
 				}
 				fileOperations = append(fileOperations, op)
-				if err := repository.InsertFileOperation(db, op); err != nil {
-					fmt.Println("Error inserting file operation:", err)
-				}
 			} else {
 				fmt.Println("Error copying file:", err)
 			}
@@ -198,10 +195,10 @@ func exportFileOperationsToCSV(fileOperations []repository.FileOperation, output
 	defer writer.Flush()
 
 	// Write header
-	writer.Write([]string{"FromPath", "ToPath", "Size", "Date"})
+	writer.Write([]string{"FromPath", "ToPath", "Size", "Date", "Filename", "FileType", "DateModified", "DateScanned", "MetaData"})
 
 	for _, op := range fileOperations {
-		writer.Write([]string{op.FromPath, op.ToPath, fmt.Sprintf("%d", op.Size), op.Date.Format(repository.TimeFormat)})
+		writer.Write([]string{op.FromPath, op.ToPath, fmt.Sprintf("%d", op.Size), op.Date.Format(repository.TimeFormat), op.Filename, op.FileType, op.DateModified.Format(repository.TimeFormat), op.DateScanned.Format(repository.TimeFormat), op.MetaData})
 	}
 
 	return nil

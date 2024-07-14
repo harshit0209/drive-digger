@@ -23,10 +23,15 @@ type FileInfo struct {
 }
 
 type FileOperation struct {
-	FromPath string
-	ToPath   string
-	Size     int64
-	Date     time.Time
+	FromPath     string
+	ToPath       string
+	Size         int64
+	Date         time.Time
+	Filename     string
+	FileType     string
+	DateModified time.Time
+	DateScanned  time.Time
+	MetaData     string
 }
 
 func OpenDB() (*sql.DB, error) {
@@ -48,20 +53,7 @@ func OpenDB() (*sql.DB, error) {
 		metadata TEXT
 	);`
 
-	createFileOperationsTableSQL := `CREATE TABLE IF NOT EXISTS file_operations (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		from_path TEXT,
-		to_path TEXT,
-		size INTEGER,
-		date TEXT
-	);`
-
 	_, err = db.Exec(createFileInfoTableSQL)
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = db.Exec(createFileOperationsTableSQL)
 	if err != nil {
 		return nil, err
 	}
@@ -111,10 +103,4 @@ func ScanRowToFileInfo(rows *sql.Rows) (FileInfo, error) {
 	}
 
 	return fileInfo, nil
-}
-
-func InsertFileOperation(db *sql.DB, op FileOperation) error {
-	insertSQL := `INSERT INTO file_operations (from_path, to_path, size, date) VALUES (?, ?, ?, ?)`
-	_, err := db.Exec(insertSQL, op.FromPath, op.ToPath, op.Size, op.Date.Format(TimeFormat))
-	return err
 }
